@@ -1,81 +1,93 @@
-package com.company.project2;
+package com.company.project4;
 
+// A Java program to print all subsets of a set
 import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Collections;
 import java.util.Scanner;
 
-public class Mohammad_Alismael_S020240 {
-    public static String[] outlet;
-    public static String[] lamps;
-    public static int[][] dp;
+class Mohammad_Alismael_S020240
+{
+    // Time complexity: O(n * (2^n)) as the outer loop runs for O(2^n) and the inner loop runs for O(n).
+    public static ArrayList<ArrayList<Integer>> generateSubsets(int[] set) {
+        int n = set.length;
+        ArrayList<ArrayList<Integer>> sets = new ArrayList<>();
+        for (int i = 0; i < Math.pow(2,n); i++) {
+            ArrayList<Integer> set_ = new ArrayList<>();
+            for (int j = 0; j < n; j++) {
+                if ((i & (1 << j)) > 0) {
+                    set_.add(set[j]);
+                }
+            }
+            sets.add(set_);
+        }
+        return sets;
+    }
+
+//    public static int nItems = 4;
+    public static int nItems;
+//    public static String[] weights = {"1","2","3","5"};
+    public static String[] weights;
+//    public static String[] correspondingProfits = {"10","40","20","60"};
+    public static String[] correspondingProfits;
+    public static int maxWeight;
+    public static int minProfit;
+    public static int[][] table;
     public static void main(String[] args) {
+        Scanner scanner = new Scanner(System.in);
+        nItems = scanner.nextInt();
+        table = new int[nItems][3];
+        scanner.nextLine();
+        weights = scanner.nextLine().split(" ");
+        correspondingProfits = scanner.nextLine().split(" ");
+        maxWeight = scanner.nextInt();
+        minProfit = scanner.nextInt();
+        // fill table with corresponding values
+        for (int i = 0; i < nItems; i++) {
+            table[i][0] = i;
+            table[i][1] = Integer.parseInt(weights[i]);
+            table[i][2] = Integer.parseInt(correspondingProfits[i]);
+        }
 
-        Scanner input = new Scanner(System.in);
-        System.out.print("enter number of lamps: ");
-        int numberOfLamps = input.nextInt();
-        outlet = new String[numberOfLamps + 1];
-        lamps = new String[numberOfLamps + 1];
-        outlet[0] = "";
-        lamps[0] = "";
-        dp = new int[numberOfLamps + 1][numberOfLamps + 1];
-
-        input.nextLine();
-        getLine(input, numberOfLamps, "enter outlets: ", outlet);
-        getLine(input, numberOfLamps, "enter lamps: ", lamps);
-        input.close();
-
-        for (int i = 1; i < outlet.length; i++) { // Y
-            for (int j = 1; j < lamps.length; j++) { // X
-                dp[i][j] = fillDP(j,i);// x y
+        int[] set = createSet(table);
+        ArrayList<ArrayList<Integer>> sets = generateSubsets(set);
+        ArrayList<Integer> totalWeight = new ArrayList<Integer>();
+        ArrayList<Integer> totalValue = new ArrayList<Integer>();
+        for(ArrayList subset : sets){
+            int weight = 0;
+            int profit = 0;
+            for(Object itemSubSet: subset){
+                weight += table[(int) itemSubSet][1];
+                profit += table[(int) itemSubSet][2];
+            }
+            if ( profit >= minProfit && weight <= maxWeight) {
+                totalWeight.add(weight);
+                totalValue.add(profit);
             }
         }
+//            System.out.println("profit: " + profit);
+//            System.out.println("weight: " + weight);
+//            System.out.println("condition " + (profit > minProfit && weight < maxWeight));
+//        System.out.println("totalWeight: " + totalWeight);
+//        System.out.println("totalValue: " + totalValue);
+//        System.out.println("doesItContainMaxWeight : " + doesItContainMaxWeight);
+//        System.out.println("doesItContainMinProfit : " + doesItContainMinProfit);
 
-        System.out.println(String.format("the answer is : %d",dp[outlet.length - 1][lamps.length - 1]));
-        System.out.println(findLamps());
 
-    }
+        boolean doesItContainMaxWeight = totalWeight.contains(maxWeight);
+        boolean doesItContainMinProfit = totalValue.contains(minProfit);
 
-    private static void getLine(Scanner input,
-                                int numberOfLamps,
-                                String s,
-                                String[] strArray) {
-        System.out.print(s);
-        String outlets = input.nextLine();
-        String[] tmp = outlets.split(" ");
-        for (int i = 0; i < numberOfLamps; i++) {
-            strArray[i + 1] = tmp[i].toUpperCase();
-        }
-    }
-
-    private static String findLamps() {
-        int x = outlet.length - 1;
-        int y = lamps.length - 1;
-        ArrayList<String> res = new ArrayList<>();
-        while (x != 0 && y != 0){
-            if (dp[y][x] != dp[y][x - 1]){
-                res.add(lamps[x] + " ");
-                y--;
-            }
-            x--;
-
-        }
-        return constructString(res);
-    }
-
-    public static String constructString(ArrayList<String> container){
-        Collections.reverse(container);
-        StringBuilder a = new StringBuilder();
-        for(String item: container){
-            a.append(item);
-        }
-        return a.toString();
-    }
-
-    public static int fillDP(int x,int y){
-        if (outlet[y].equals(lamps[x]))
-            return 1 + dp[y-1][x-1];
+        if (doesItContainMaxWeight && doesItContainMinProfit)
+            System.out.println("Yes");
         else
-            return Math.max(dp[y][x-1],dp[y-1][x]);
+            System.out.println("No");
+
+
+    }
+
+    public static int[] createSet(int[][] table){
+        int[] set = new int[table.length];
+        for (int i = 0; i < table.length; i++) {
+            set[i] = table[i][0];
+        }
+        return set;
     }
 }
